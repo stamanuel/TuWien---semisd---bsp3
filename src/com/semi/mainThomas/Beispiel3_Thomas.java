@@ -1,4 +1,4 @@
-package com.semi.main;
+package com.semi.mainThomas;
 
 
 import java.io.File;
@@ -32,10 +32,11 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.semi.api.Card;
 import com.semi.api.Game;
 
 
-public class Beispiel3 {
+public class Beispiel3_Thomas {
 	
 	 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder builder = factory.newDocumentBuilder();
@@ -59,13 +60,13 @@ public class Beispiel3 {
         filteredXML = args[1];
         checkedXML = args[2];
 
-        Beispiel3 beispiel = new Beispiel3();
+        Beispiel3_Thomas beispiel = new Beispiel3_Thomas();
 
         //beispiel.sax(xmlInput, filteredXML);
         beispiel.dom(filteredXML, checkedXML);
     }
 
-    private Beispiel3() throws Exception {
+    private Beispiel3_Thomas() throws Exception {
     }
 
     /**
@@ -129,7 +130,10 @@ public class Beispiel3 {
 	    			   DocumentBuilderFactory.newInstance();
 	    			  DocumentBuilder builder = fact.newDocumentBuilder();
 	    			  Document doc = builder.parse(file);
+	    			  
 	    			  Game game = new Game(doc);
+	    			  game.setCurrentCard1(new Card(doc.getFirstChild().getAttributes().getNamedItem("current-card1").toString()));
+	    			  
 	    			  if(game.isValid()) {
 	    				  
 	    			  }
