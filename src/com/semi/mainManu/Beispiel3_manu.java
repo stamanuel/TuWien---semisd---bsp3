@@ -128,7 +128,6 @@ public class Beispiel3_manu {
             throws Exception {
 	}
     
-    
     /* ContentHandler mit allen notwendigen Methoden
      */
     
