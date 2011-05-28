@@ -8,6 +8,9 @@ import java.io.StringWriter;
 
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
@@ -29,6 +32,8 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import com.semi.api.Game;
+
 
 public class Beispiel3 {
 	
@@ -36,7 +41,10 @@ public class Beispiel3 {
 	    DocumentBuilder builder = factory.newDocumentBuilder();
 	    DOMImplementation impl = builder.getDOMImplementation();
 	    String resultXmlString = "";
-	    String startPrefixes;
+	    String startPrefixes = "";
+	    static String filteredXML = "";
+	    static String checkedXML = "";
+	    static String xmlInput = "";
 	
     public static void main(String[] args) throws Exception {
         // Argumentueberpruefung
@@ -47,13 +55,13 @@ public class Beispiel3 {
             System.exit(1);
         }
 
-        String xmlInput = args[0];
-        String filteredXML = args[1];
-        String checkedXML = args[2];
+        xmlInput = args[0];
+        filteredXML = args[1];
+        checkedXML = args[2];
 
         Beispiel3 beispiel = new Beispiel3();
 
-        beispiel.sax(xmlInput, filteredXML);
+        //beispiel.sax(xmlInput, filteredXML);
         beispiel.dom(filteredXML, checkedXML);
     }
 
@@ -83,24 +91,20 @@ public class Beispiel3 {
         filter.setContentHandler(new MyContentHandler());
 
         filter.parse(is);  
-        String T = prettyFormat(resultXmlString, 2);
-        System.out.print(T);
     }
     
-    public static String prettyFormat(String input, int indent) {
+    public static void prettyFormat(String input, int indent) {
         try {
             Source xmlInput = new StreamSource(new StringReader(input));
             StringWriter stringWriter = new StringWriter();
             StreamResult xmlOutput = new StreamResult(stringWriter);
-            StreamResult xmlOutput2 = new StreamResult(new File("test.xml"));
+            StreamResult xmlOutput2 = new StreamResult(new File(filteredXML));
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             transformerFactory.setAttribute("indent-number", indent);
             Transformer transformer = transformerFactory.newTransformer(); 
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             
             transformer.transform(xmlInput, xmlOutput2);
-            //transformer.transform(xmlInput, xmlOutput);
-            return null;//xmlOutput.getWriter().toString();
         } catch (Exception e) {
             throw new RuntimeException(e); // simple exception handling, please review it
         }
@@ -118,6 +122,27 @@ public class Beispiel3 {
      */
     private void dom(String filteredMemoryXML, String checkedMemoryXML)
             throws Exception {
+    	
+    			  File file = new File("memory.xml");
+    			  if (file.exists()){
+	    			  DocumentBuilderFactory fact = 
+	    			   DocumentBuilderFactory.newInstance();
+	    			  DocumentBuilder builder = fact.newDocumentBuilder();
+	    			  Document doc = builder.parse(file);
+	    			  Game game = new Game(doc);
+	    			  if(game.isValid()) {
+	    				  
+	    			  }
+	    			  else {
+	    				  System.out.println("File not valid!");
+	    			  }
+	    			  //Element game = doc.getDocumentElement();
+	    			  game.getClass();
+    			  }
+    			  else{
+    			  System.out.println("File not found!");
+    			  }
+    	
 	}
     
     
@@ -141,11 +166,31 @@ public class Beispiel3 {
     public void startElement(String uri, String localName, String qName,
         Attributes atts) throws SAXException {
     	
-    	//DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-    	//DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-    	//Document doc = docBuilder.parse(filteredXML);
-    	resultXmlString = resultXmlString + "<" + localName + ">";
-    	System.out.println("<"+qName+ " " +  ">");
+    	 if(qName == "")
+	    	 	resultXmlString+="<"+localName+" ";
+	     else
+	    		resultXmlString+="<"+qName+"";
+	    	 
+	     if(startPrefixes.length() > 0)
+	     {
+	    	 resultXmlString += " " +startPrefixes;
+	    	 startPrefixes = "";
+	    		 
+	     }
+	     
+	       if(atts!=null)
+	       {
+	        for( int i=0; i<atts.getLength(); i++ )
+	        {
+	         String aName = atts.getLocalName(i); // Attr name
+	        
+	        resultXmlString += " ";
+	         
+	        resultXmlString+=aName +"=\"" +atts.getValue(i)+ "\"";
+	        }
+	        }
+	   
+	       resultXmlString+=">";
 
     }
 
@@ -153,7 +198,11 @@ public class Beispiel3 {
     public void endElement(String uri, String localName, String qName)
         throws SAXException {
     	
-    	resultXmlString = resultXmlString + "</" + localName + ">";
+    	if(qName == "")
+    	 	resultXmlString+="</"+localName+">";
+    	else
+    		resultXmlString+="</"+qName+">";
+	
     	System.out.println("</" + localName + ">");
     }
 
@@ -169,13 +218,16 @@ public class Beispiel3 {
     	resultXmlString = resultXmlString + target + data;
     	System.out.println(" "+target+" " + data);
     }
-    public void setDocumentLocator(Locator locator) {}
+    public void setDocumentLocator(Locator locator) {
+    	
+    }
     public void skippedEntity(String name) throws SAXException {}
     public void startDocument() throws SAXException {
+    	resultXmlString += "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     }
     public void startPrefixMapping(String prefix, String uri)
       throws SAXException {
-    	startPrefixes = startPrefixes + "xmlns:" + prefix + "=\"" + uri + "\"";
+    	startPrefixes = startPrefixes + "xmlns:" + prefix + "=\"" + uri + "\"\n";
     	System.out.println("xmlns:" + prefix + "=\"" + uri + "\"");
     }
 	
