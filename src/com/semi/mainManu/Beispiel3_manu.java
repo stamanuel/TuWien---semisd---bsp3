@@ -35,6 +35,7 @@ import org.xml.sax.SAXException;
  
  */
 
+
 public class Beispiel3_manu {
 	
 	 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
